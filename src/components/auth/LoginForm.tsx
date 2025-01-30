@@ -56,7 +56,7 @@ export default function LoginForm() {
               <Input
                 id="email"
                 type="email"
-                placeholder="admin@water.com"
+                placeholder="Enter your email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required

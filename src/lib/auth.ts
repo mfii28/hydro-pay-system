@@ -1,3 +1,5 @@
+import pool from './db';
+
 interface LoginCredentials {
   email: string;
   password: string;
@@ -14,16 +16,29 @@ interface AuthResponse {
 export const authenticateUser = async (credentials: LoginCredentials): Promise<AuthResponse> => {
   const { email, password } = credentials;
   
-  // For demo purposes - in production this would call your backend API
-  if (email === 'admin@water.com' && password === 'admin') {
+  try {
+    const [rows]: any = await pool.execute(
+      'SELECT * FROM users WHERE email = ? AND password = ?',
+      [email, password]
+    );
+
+    if (rows.length === 0) {
+      throw new Error('Invalid credentials');
+    }
+
+    // For demo purposes we're using a simple token
+    // In production, you should use proper JWT signing
+    const token = 'demo-token-' + Date.now();
+
     return {
-      token: 'demo-token',
+      token,
       user: {
-        id: 1,
-        email: 'admin@water.com'
+        id: rows[0].id,
+        email: rows[0].email
       }
     };
+  } catch (error) {
+    console.error('Authentication error:', error);
+    throw new Error('Invalid credentials');
   }
-  
-  throw new Error('Invalid credentials');
 };
