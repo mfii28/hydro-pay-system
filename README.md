@@ -1,12 +1,12 @@
-# Welcome to your Lovable project
+# Getting Started with Create Next App
 
-## Project info
+This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
-**URL**: https://lovable.dev/projects/4449b929-1b2a-46ca-8e37-67057ce5ab14
+## Getting Started
 
-## How can I edit this code?
+First, run the development server:
 
-There are several ways of editing your application.
+
 
 **Use Lovable**
 
@@ -60,10 +60,5 @@ This project is built with .
 - shadcn-ui
 - Tailwind CSS
 
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/4449b929-1b2a-46ca-8e37-67057ce5ab14) and click on Share -> Publish.
-
-## I want to use a custom domain - is that possible?
-
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+ 
+ 
