@@ -1,6 +1,6 @@
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/dashboard/AppSidebar';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { PiggyBank, Plus } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
@@ -22,22 +22,10 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { format } from 'date-fns';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Customer, Payment } from '@/lib/types';
-
-// Mock data
-const mockCustomerPaymentsHistory: Payment[] = [
-  {
-    payment_id: 1,
-    bill_id: 1,
-    payment_method_id: 1,
-    payment_date: new Date(),
-    amount: 100,
-    payment_status: 1
-  }
-];
+import { Customer, Payment, SelectOption } from '@/lib/types';
+import { supabase } from '@/lib/supabase';
 
 export default function Payments() {
   const [customers, setCustomers] = useState<SelectOption[]>([]);
@@ -48,8 +36,8 @@ export default function Payments() {
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<SelectOption | null>(null);
   const [paymentAmount, setPaymentAmount] = useState<string>('');
   const [paymentDate, setPaymentDate] = useState<Date | null>(null);
-  const [pendingPayments, setPendingPayments] = useState<any[]>([]);
-  const [recentTransactions, setRecentTransactions] = useState<any[]>([]);
+  const [pendingPayments, setPendingPayments] = useState<Payment[]>([]);
+  const [recentTransactions, setRecentTransactions] = useState<Payment[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [isAddingPayment, setIsAddingPayment] = useState(false);
   
@@ -57,9 +45,9 @@ export default function Payments() {
     setSearchQuery(event.target.value);
   };
 
-  const filteredCustomers = mockCustomers.filter(customer =>
-    customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    customer.customer_id.toString().toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredCustomers = customers.filter(customer =>
+    customer.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    customer.value.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const handlePaymentAmountChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -87,13 +75,16 @@ export default function Payments() {
   };
 
   const fetchCustomers = async () => {
-    const customersData = await prisma.customers.findMany({
-      select: {
-        customer_id: true,
-        name: true,
-      },
-    });
-    const options = customersData.map((customer) => ({
+    const { data, error } = await supabase
+      .from('customers')
+      .select('customer_id, name');
+    
+    if (error) {
+      console.error('Error fetching customers:', error);
+      return;
+    }
+    
+    const options = data.map((customer) => ({
       value: customer.customer_id.toString(),
       label: customer.name,
     }));
@@ -101,32 +92,36 @@ export default function Payments() {
   };
 
   const fetchBills = async (customerId: string) => {
-    const billsData = await prisma.bills.findMany({
-      where: {
-        customer_id: parseInt(customerId),
-      },
-      select: {
-        bill_id: true,
-      },
-    });
+    const { data, error } = await supabase
+      .from('bills')
+      .select('bill_id')
+      .eq('customer_id', parseInt(customerId));
+    
+    if (error) {
+      console.error('Error fetching bills:', error);
+      return;
+    }
 
-    const options = billsData.map((bill) => ({
+    const options = data.map((bill) => ({
       value: bill.bill_id.toString(),
-      label: bill.bill_id.toString(),
+      label: `Bill #${bill.bill_id}`,
     }));
     setBills(options);
   };
 
   const fetchPaymentMethods = async () => {
-    const paymentMethodsData = await prisma.paymentMethods.findMany({
-      select: {
-        payment_method_id: true,
-        name: true,
-      },
-    });
-    const options = paymentMethodsData.map((paymentMethod) => ({
-      value: paymentMethod.payment_method_id.toString(),
-      label: paymentMethod.name,
+    const { data, error } = await supabase
+      .from('payment_methods')
+      .select('payment_method_id, name');
+    
+    if (error) {
+      console.error('Error fetching payment methods:', error);
+      return;
+    }
+
+    const options = data.map((method) => ({
+      value: method.payment_method_id.toString(),
+      label: method.name,
     }));
     setPaymentMethods(options);
   };
@@ -134,7 +129,7 @@ export default function Payments() {
   useEffect(() => {
     fetchCustomers();
     fetchPaymentMethods();
-  },[]);
+  }, []);
 
   return (
     <SidebarProvider>
@@ -163,7 +158,7 @@ export default function Payments() {
                         <Label htmlFor='customerId'>Customer</Label>
                         <Select onValueChange={handleCustomerChange} >
                           <SelectTrigger className='w-full'>
-                            <SelectValue placeholder='Select a customer' currentValue={selectedCustomer?.value} />
+                            <SelectValue placeholder='Select a customer' />
                           </SelectTrigger>
                           <SelectContent>
                             <ScrollArea className="h-40">
@@ -180,7 +175,7 @@ export default function Payments() {
                         <Label htmlFor='billId'>Bill</Label>
                         <Select onValueChange={handleBillChange} disabled={!selectedCustomer} >
                           <SelectTrigger className='w-full'>
-                            <SelectValue placeholder='Select a Bill' currentValue={selectedBill?.value} />
+                            <SelectValue placeholder='Select a Bill' />
                           </SelectTrigger>
                           <SelectContent>
                             {bills.map((bill) => (
@@ -195,7 +190,7 @@ export default function Payments() {
                         <Label htmlFor='paymentMethod'>Payment Method</Label> 
                         <Select onValueChange={handlePaymentMethodChange} >
                           <SelectTrigger className='w-full'>
-                            <SelectValue placeholder='Select a payment method' currentValue={selectedPaymentMethod?.value}/>
+                            <SelectValue placeholder='Select a payment method' />
                           </SelectTrigger>
                           <SelectContent> {paymentMethods.map((paymentMethod) => (
                             <SelectItem key={paymentMethod.value} value={paymentMethod.value}>{paymentMethod.label}</SelectItem>
@@ -289,11 +284,11 @@ export default function Payments() {
                     <TableRow> <TableHead>Payment ID</TableHead> <TableHead>Customer ID</TableHead> <TableHead>Amount</TableHead> <TableHead>Date</TableHead> <TableHead>Status</TableHead> </TableRow>
                   </TableHeader>
                   <TableBody> 
-                    {mockCustomerPaymentsHistory.map((payment) => (
+                    {pendingPayments.map((payment) => (
                       <TableRow key={payment.payment_id}> 
                       <TableCell>{payment.payment_id}</TableCell> 
                       <TableCell>{payment.customer_id}</TableCell>
-                      <TableCell>GH₵{payment.amount.toFixed(2)}</TableCell> <TableCell>{payment.date}</TableCell> <TableCell>{payment.status}</TableCell> </TableRow>
+                      <TableCell>GH₵{payment.amount.toFixed(2)}</TableCell> <TableCell>{payment.payment_date}</TableCell> <TableCell>{payment.payment_status}</TableCell> </TableRow>
                     ))}
                   </TableBody>
 

@@ -75,6 +75,9 @@ export interface Payment {
   payment_date: Date;
   amount: number;
   payment_status: number;
+  customer_id: number; // Added missing property
+  date: Date; // Added missing property
+  status: string; // Added missing property
 }
 
 export interface PaymentStatus {
@@ -98,6 +101,11 @@ export interface WaterUsage {
   meter_id: number;
   reading_date: Date;
   water_usage: number;
+}
+
+export interface SelectOption {
+  value: string;
+  label: string;
 }
 
 // For Bills.tsx
