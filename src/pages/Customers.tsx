@@ -55,9 +55,9 @@ export default function Customers() {
 
       if (addressError) throw addressError;
 
-      setCustomers(customerData);
-      setMeters(meterData);
-      setAddresses(addressData);
+      setCustomers(customerData || []);
+      setMeters(meterData || []);
+      setAddresses(addressData || []);
     } catch (error) {
       console.error("Error fetching data:", error);
       toast({
@@ -70,6 +70,7 @@ export default function Customers() {
 
   const handleCreateCustomer = async (customerData: Partial<Customer>) => {
     try {
+      // Create address first
       const { data: addressData, error: addressError } = await supabase
         .from("address")
         .insert([
@@ -86,12 +87,18 @@ export default function Customers() {
 
       if (addressError) throw addressError;
 
+      // Create customer with the new address ID
       const { data: customerResult, error: customerError } = await supabase
         .from("customer")
         .insert([
           {
-            ...customerData,
+            name: customerData.name,
+            email: customerData.email,
+            phone: customerData.phone,
             billing_address_id: addressData.address_id,
+            billing_cycle: customerData.billing_cycle,
+            account_type: customerData.account_type,
+            account_status: customerData.account_status,
           },
         ])
         .select()
@@ -99,6 +106,7 @@ export default function Customers() {
 
       if (customerError) throw customerError;
 
+      // Create meter for the new customer
       const { error: meterError } = await supabase
         .from("meter")
         .insert([
@@ -134,7 +142,14 @@ export default function Customers() {
     try {
       const { error } = await supabase
         .from("customer")
-        .update(customerData)
+        .update({
+          name: customerData.name,
+          email: customerData.email,
+          phone: customerData.phone,
+          billing_cycle: customerData.billing_cycle,
+          account_type: customerData.account_type,
+          account_status: customerData.account_status,
+        })
         .eq("customer_id", editingCustomer.customer_id);
 
       if (error) throw error;
@@ -258,7 +273,7 @@ export default function Customers() {
               </CardHeader>
               <CardContent>
                 <CustomerList
-                  customers={filteredCustomers}
+                  customers={customers}
                   addresses={addresses}
                   meters={meters}
                   accountTypes={accountTypes}

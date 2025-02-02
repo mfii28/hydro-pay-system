@@ -60,7 +60,7 @@ export interface Meter {
   meter_id: number;
   customer_id: number;
   meter_number: string;
-  installation_date: Date;
+  installation_date: string; // Changed from Date to string to match Supabase
 }
 
 export interface PaymentMethod {
