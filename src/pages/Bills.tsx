@@ -37,7 +37,7 @@ export default function Bills() {
   const fetchBills = async () => {
     try {
       const { data, error } = await supabase
-        .from("Bills")
+        .from("Bill")  
         .select("*") as { data: BillsRow[] | null; error: any }; 
       if (error) {
         console.error("Error fetching Bills:", error);
@@ -55,7 +55,7 @@ export default function Bills() {
   const fetchCustomers = async () => {
     try {
       const { data, error } = await supabase
-        .from("Customers")
+        .from("Customer")  
         .select("*") as { data: CustomersRow[] | null; error: any };
       if (error) {
         console.error("Error fetching customers:", error);
