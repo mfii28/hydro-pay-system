@@ -1,6 +1,6 @@
 import { Customer, Bill, BillsRow, CustomersRow } from "../lib/types";
 import React, { useState, useEffect } from "react";
-import { supabase } from "../lib/supabase";
+import { supabase } from "../integrations/supabase/client";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/dashboard/AppSidebar";
 import {
@@ -37,10 +37,10 @@ export default function Bills() {
   const fetchBills = async () => {
     try {
       const { data, error } = await supabase
-        .from("Bill")  
+        .from("bill")  
         .select("*") as { data: BillsRow[] | null; error: any }; 
       if (error) {
-        console.error("Error fetching Bills:", error);
+        console.error("Error fetching bills:", error);
         return;
       }
       if (data) {
@@ -55,7 +55,7 @@ export default function Bills() {
   const fetchCustomers = async () => {
     try {
       const { data, error } = await supabase
-        .from("Customer")  
+        .from("customer")  
         .select("*") as { data: CustomersRow[] | null; error: any };
       if (error) {
         console.error("Error fetching customers:", error);
