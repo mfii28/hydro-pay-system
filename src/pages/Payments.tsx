@@ -131,6 +131,10 @@ export default function Payments() {
     fetchPaymentMethods();
   }, []);
 
+  const formatDate = (date: string | Date) => {
+    return new Date(date).toLocaleDateString();
+  };
+
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full">
@@ -251,7 +255,6 @@ export default function Payments() {
                       <TableHead>Payment ID</TableHead>
                       <TableHead>Customer ID</TableHead>
                       <TableHead>Amount</TableHead>
-                      <TableHead>Customer Name</TableHead>
                       <TableHead>Date</TableHead>
                       <TableHead>Payment Method</TableHead>
                       <TableHead>Status</TableHead>
@@ -261,11 +264,11 @@ export default function Payments() {
                     {recentTransactions.map((transaction) => (
                       <TableRow key={transaction.payment_id}>
                         <TableCell>{transaction.payment_id}</TableCell>
-                        <TableCell>{transaction.bill_id}</TableCell> 
+                        <TableCell>{transaction.customer_id}</TableCell> 
                         <TableCell>GH₵{transaction.amount.toFixed(2)}</TableCell>
-                        <TableCell>{transaction.payment_date}</TableCell>
-                        <TableCell>{transaction.payment_method.name}</TableCell>
-                        <TableCell>{transaction.payment_status.name}</TableCell>
+                        <TableCell>{formatDate(transaction.payment_date)}</TableCell>
+                        <TableCell>{transaction.payment_method?.name}</TableCell>
+                        <TableCell>{transaction.payment_status_name}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -288,7 +291,7 @@ export default function Payments() {
                       <TableRow key={payment.payment_id}> 
                       <TableCell>{payment.payment_id}</TableCell> 
                       <TableCell>{payment.customer_id}</TableCell>
-                      <TableCell>GH₵{payment.amount.toFixed(2)}</TableCell> <TableCell>{payment.payment_date}</TableCell> <TableCell>{payment.payment_status}</TableCell> </TableRow>
+                      <TableCell>GH₵{payment.amount.toFixed(2)}</TableCell> <TableCell>{formatDate(payment.payment_date)}</TableCell> <TableCell>{payment.payment_status_name}</TableCell> </TableRow>
                     ))}
                   </TableBody>
 

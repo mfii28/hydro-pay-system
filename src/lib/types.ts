@@ -72,12 +72,14 @@ export interface Payment {
   payment_id: number;
   bill_id: number;
   payment_method_id: number;
-  payment_date: Date;
+  payment_date: string;
   amount: number;
   payment_status: number;
-  customer_id: number; // Added missing property
-  date: Date; // Added missing property
-  status: string; // Added missing property
+  customer_id: number;
+  payment_method: {
+    name: string;
+  };
+  payment_status_name: string;
 }
 
 export interface PaymentStatus {
