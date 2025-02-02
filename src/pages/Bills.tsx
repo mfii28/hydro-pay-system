@@ -1,5 +1,6 @@
-import { Customer, BillsRow, CustomersRow } from "../lib/types";
-import { createClient } from "@supabase/supabase-js";
+import { Customer, Bill, BillsRow, CustomersRow } from "../lib/types";
+import React, { useState, useEffect } from "react";
+import { supabase } from "../lib/supabase";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/dashboard/AppSidebar";
 import {
@@ -16,7 +17,6 @@ import {
   Search,
   CheckCircle,
 } from "lucide-react";
-import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
 import {
   Table,
@@ -220,4 +220,4 @@ export default function Bills() {
       </div>
     </SidebarProvider>
   );
-  }
+}

@@ -3,6 +3,7 @@ import { AppSidebar } from '@/components/dashboard/AppSidebar';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { PiggyBank, Plus } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
 import {
   Table,
   TableBody,
@@ -10,7 +11,6 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-
 } from '@/components/ui/table';
 import {
   Dialog,
@@ -23,45 +23,21 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { format } from 'date-fns';
-import { useState } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Customer, Payment } from '@/lib/types';
 
-type Payment = {
-  paymentId: string;
-  customerId: string;
-  customerName: string;
-  meterId: string;
-  amount: number;
-  date: string;
-  status: string;
-};
-
-type Customer = {
-  customerId: string;
-  name: string;
-  email: string;
-  phone: string;
-  address: string;
-  meterNumber: string;
-};
-
-type Bill = {
-  billId: string;
-  customerId: string;
-  amount: number;
-  date: string;
-};
-
-type PaymentMethod = {
-  paymentMethodId: string;
-  name: string;
-};
-
-interface SelectOption {
-  value: string;
-  label: string;
-}
+// Mock data
+const mockCustomerPaymentsHistory: Payment[] = [
+  {
+    payment_id: 1,
+    bill_id: 1,
+    payment_method_id: 1,
+    payment_date: new Date(),
+    amount: 100,
+    payment_status: 1
+  }
+];
 
 export default function Payments() {
   const [customers, setCustomers] = useState<SelectOption[]>([]);
@@ -76,12 +52,14 @@ export default function Payments() {
   const [recentTransactions, setRecentTransactions] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [isAddingPayment, setIsAddingPayment] = useState(false);
+  
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(event.target.value);
   };
+
   const filteredCustomers = mockCustomers.filter(customer =>
     customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    customer.customer_id.toLowerCase().includes(searchQuery.toLowerCase())
+    customer.customer_id.toString().toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const handlePaymentAmountChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -152,6 +130,7 @@ export default function Payments() {
     }));
     setPaymentMethods(options);
   };
+
   useEffect(() => {
     fetchCustomers();
     fetchPaymentMethods();
@@ -190,7 +169,7 @@ export default function Payments() {
                             <ScrollArea className="h-40">
                               {customers.map((customer) => (
                                 <SelectItem key={customer.value} value={customer.value}>
-                                  {customer.name}
+                                  {customer.label}
                                 </SelectItem>
                               ))}
                             </ScrollArea>
@@ -206,7 +185,7 @@ export default function Payments() {
                           <SelectContent>
                             {bills.map((bill) => (
                               <SelectItem key={bill.value} value={bill.value}>
-                                {bill.billId}
+                                {bill.label}
                               </SelectItem>
                             ))}
                           </SelectContent>
@@ -229,7 +208,7 @@ export default function Payments() {
                       </div>
                       <div className="grid gap-2" >
                         <Label htmlFor="date">Date</Label>
-                        <Input id="date" type="date" />
+                        <Input id="date" type="date" onChange={handlePaymentDateChange} />
                       </div>
                     </div>
                     <div className="flex justify-end">
@@ -260,7 +239,6 @@ export default function Payments() {
                 </CardHeader>
                 <CardContent> 
                 <p className="text-3xl font-bold">GH₵
-
                     {pendingPayments.reduce((sum, payment) => sum + payment.amount, 0).toFixed(2)}
                   </p> </CardContent>
               </Card>
@@ -312,9 +290,9 @@ export default function Payments() {
                   </TableHeader>
                   <TableBody> 
                     {mockCustomerPaymentsHistory.map((payment) => (
-                      <TableRow key={payment.paymentId}> 
-                      <TableCell>{payment.paymentId}</TableCell> 
-                      <TableCell>{payment.customerId}</TableCell>
+                      <TableRow key={payment.payment_id}> 
+                      <TableCell>{payment.payment_id}</TableCell> 
+                      <TableCell>{payment.customer_id}</TableCell>
                       <TableCell>GH₵{payment.amount.toFixed(2)}</TableCell> <TableCell>{payment.date}</TableCell> <TableCell>{payment.status}</TableCell> </TableRow>
                     ))}
                   </TableBody>

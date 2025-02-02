@@ -52,27 +52,7 @@ const mockRates: Rate[] = [
     region: null,
     tax: 0.15,
     service_fee: 5,
-  },
-  {
-    rate_id: 3,
-    usage_tier_start: 0,
-    usage_tier_end: 10,
-    price_per_m3: 7.5,
-    customer_type: "commercial",
-    region: null,
-    tax: 0.20,
-    service_fee: 10,
-  },
-  {
-    rate_id: 4,
-    usage_tier_start: 11,
-    usage_tier_end: 20,
-    price_per_m3: 15.0,
-    customer_type: "commercial",
-    region: null,
-    tax: 0.20,
-    service_fee: 10,
-  },
+  }
 ];
 
 const mockCustomers: Customer[] = [
@@ -80,26 +60,24 @@ const mockCustomers: Customer[] = [
     customer_id: 1,
     name: "John Doe",
     email: "john.doe@example.com",
-    region: "Region A",
+    phone: "123-456-7890",
+    billing_address_id: null,
+    billing_cycle: null,
+    account_type: null,
+    account_status: null,
+    region: "Region A"
   },
   {
     customer_id: 2,
     name: "Jane Smith",
     email: "jane.smith@example.com",
-    region: "Region B",
-  },
-  {
-    customer_id: 3,
-    name: "Alice Johnson",
-    email: "alice.johnson@example.com",
-    region: "Region A",
-  },
-  {
-    customer_id: 4,
-    name: "Bob Williams",
-    email: "bob.williams@example.com",
-    region: "Region C",
-  },
+    phone: "123-456-7891",
+    billing_address_id: null,
+    billing_cycle: null,
+    account_type: null,
+    account_status: null,
+    region: "Region B"
+  }
 ];
 
 const mockBills: Bill[] = [
@@ -108,9 +86,13 @@ const mockBills: Bill[] = [
     customer_id: 1,
     customer_name: "John Doe",
     bill_details: "Bill details for John Doe",
+    bill_date: new Date(),
+    due_date: new Date(),
+    total_amount: 100,
+    bill_status: 1,
     rate_id: 1,
-    date: new Date(),
-  },
+    date: new Date()
+  }
 ];
 
 export default function GenerateBills() {
