@@ -28,17 +28,6 @@ import {
 } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 
-const supabaseUrl = "https://oabmmrxoogccnuyppfmu.supabase.co";
-const supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9hYm1tcnhvb2djY251eXBwZm11Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzgzMjI0NjMsImV4cCI6MjA1Mzg5ODQ2M30.G1hyI7CPwhd_q0vAXbyfODPvjGiyv587_3nemXFkLI0";
-
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error(
-    "Supabase URL or Anon Key is missing from environment variables."
-  );
-}
-
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
 export default function Bills() {
   const [selectedCustomers, setSelectedCustomers] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -81,7 +70,6 @@ export default function Bills() {
     }
   };
 
-
   const handleCustomerSelect = (customerId: string) => {   
     setSelectedCustomers((prev) => {
       if (prev.includes(customerId)) {
@@ -109,7 +97,6 @@ export default function Bills() {
     setSearchQuery(event.target.value);
   };
 
-
   const filteredCustomers = customers.filter((customer) => {
     const lowerCaseQuery = searchQuery.toLowerCase();  
     return (
@@ -117,7 +104,6 @@ export default function Bills() {
       customer.email.toLowerCase().includes(lowerCaseQuery)
     );
   });
-
 
   return (
     <SidebarProvider>
@@ -135,7 +121,6 @@ export default function Bills() {
                   className="flex items-center gap-2"
                   disabled={selectedCustomers.length === 0}
                 >
-
                   <FileText className="h-4 w-4" />
                   Generate for {selectedCustomers.length} Selected
                 </Button>

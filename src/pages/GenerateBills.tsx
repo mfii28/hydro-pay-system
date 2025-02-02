@@ -142,8 +142,12 @@ export default function GenerateBills() {
         customer_id: customerId,
         customer_name: customer?.name || "N/A",
         bill_details: `Bill for ${customer?.name || "N/A"}`,
+        bill_date: new Date(),
+        due_date: new Date(),
+        total_amount: 0,
+        bill_status: 1,
         rate_id: 1,
-        date: new Date(),
+        date: new Date()
       };
     });
     setBills([...bills, ...newBills]);
@@ -158,8 +162,12 @@ export default function GenerateBills() {
         customer_id: customer.customer_id,
         customer_name: customer.name,
         bill_details: `Bill for ${customer.name}`,
+        bill_date: new Date(),
+        due_date: new Date(),
+        total_amount: 0,
+        bill_status: 1,
         rate_id: 1,
-        date: new Date(),
+        date: new Date()
       };
     });
     setBills([...bills, ...newBills]);

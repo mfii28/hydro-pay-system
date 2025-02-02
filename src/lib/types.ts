@@ -29,14 +29,14 @@ export interface BillItem {
 export interface Bill {
   bill_id: number;
   customer_id: number;
-  customer_name?: string;
-  bill_details?: string;
+  customer_name: string;
+  bill_details: string;
   bill_date: Date;
   due_date: Date;
   total_amount: number;
   bill_status: number;
-  rate_id?: number;
-  date?: Date;
+  rate_id: number;
+  date: Date;
 }
 
 export interface BillStatus {
