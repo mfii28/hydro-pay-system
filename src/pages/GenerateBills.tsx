@@ -32,7 +32,8 @@ import {
 } from "@/components/ui/dialog";
 import { format } from "date-fns";
 
-const mockRates: Rate[] = [ {
+const mockRates: Rate[] = [
+  {
     rate_id: 1,
     usage_tier_start: 0,
     usage_tier_end: 10,
@@ -74,6 +75,13 @@ const mockRates: Rate[] = [ {
   },
 ];
 
+const mockCustomers: Customer[] = [
+  {
+    customer_id: 1,
+    name: "John Doe",
+    email: "john.doe@example.com",
+    region: "Region A",
+  },
   {
     customer_id: 2,
     name: "Jane Smith",
