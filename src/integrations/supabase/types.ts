@@ -66,6 +66,24 @@ export type Database = {
         }
         Relationships: []
       }
+      adminuser: {
+        Row: {
+          email: string
+          id: number
+          password_hash: string
+        }
+        Insert: {
+          email?: string
+          id?: never
+          password_hash?: string
+        }
+        Update: {
+          email?: string
+          id?: never
+          password_hash?: string
+        }
+        Relationships: []
+      }
       bill: {
         Row: {
           bill_date: string
