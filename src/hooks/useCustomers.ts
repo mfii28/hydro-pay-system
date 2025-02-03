@@ -78,22 +78,39 @@ export function useCustomers() {
         return;
       }
 
-      // Create address with empty string values instead of null
+      // Create address with null values
       const { data: addressData, error: addressError } = await supabase
         .from("address")
         .insert([
           {
-            address_line: '',
-            city: '',
-            state: '',
-            postal_code: '',
-            region: '',
+            address_line: null,
+            city: null,
+            state: null,
+            postal_code: null,
+            region: null,
           },
         ])
         .select()
         .single();
 
-      if (addressError) throw addressError;
+      if (addressError) {
+        console.error("Error creating address:", addressError);
+        toast({
+          title: "Error",
+          description: "Failed to create address",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (!addressData) {
+        toast({
+          title: "Error",
+          description: "Failed to create address - no data returned",
+          variant: "destructive",
+        });
+        return;
+      }
 
       // Create customer with the new address ID
       const { data: customerResult, error: customerError } = await supabase
@@ -112,7 +129,24 @@ export function useCustomers() {
         .select()
         .single();
 
-      if (customerError) throw customerError;
+      if (customerError) {
+        console.error("Error creating customer:", customerError);
+        toast({
+          title: "Error",
+          description: "Failed to create customer",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (!customerResult) {
+        toast({
+          title: "Error",
+          description: "Failed to create customer - no data returned",
+          variant: "destructive",
+        });
+        return;
+      }
 
       // Create meter for the new customer
       const { error: meterError } = await supabase
@@ -125,7 +159,15 @@ export function useCustomers() {
           },
         ]);
 
-      if (meterError) throw meterError;
+      if (meterError) {
+        console.error("Error creating meter:", meterError);
+        toast({
+          title: "Error",
+          description: "Failed to create meter",
+          variant: "destructive",
+        });
+        return;
+      }
 
       toast({
         title: "Success",
