@@ -1,4 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { supabase } from "@/integrations/supabase/client";
 import Dashboard from './pages/Dashboard';
 import Customers from './pages/Customers';
 import Rates from './pages/Rates';
@@ -9,8 +11,28 @@ import NotFound from './pages/NotFound';
 import Index from './pages/Index';
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
-  const token = localStorage.getItem('token');
-  return token ? <>{children}</> : <Navigate to="/" />;
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setIsAuthenticated(!!session);
+
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+        setIsAuthenticated(!!session);
+      });
+
+      return () => subscription.unsubscribe();
+    };
+
+    checkAuth();
+  }, []);
+
+  if (isAuthenticated === null) {
+    return null; // or a loading spinner
+  }
+
+  return isAuthenticated ? <>{children}</> : <Navigate to="/" />;
 }
 
 function App() {

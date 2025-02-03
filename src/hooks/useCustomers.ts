@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { Customer, Address, Meter } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from 'react-router-dom';
 
 export function useCustomers() {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [meters, setMeters] = useState<Meter[]>([]);
   const [addresses, setAddresses] = useState<Address[]>([]);
@@ -13,11 +15,30 @@ export function useCustomers() {
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
 
   useEffect(() => {
+    checkSession();
     fetchCustomers();
   }, []);
 
+  const checkSession = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      navigate('/');
+      toast({
+        title: "Authentication required",
+        description: "Please log in to access this page",
+        variant: "destructive",
+      });
+    }
+  };
+
   const fetchCustomers = async () => {
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        navigate('/');
+        return;
+      }
+
       const { data: customerData, error: customerError } = await supabase
         .from("customer")
         .select("*");
@@ -51,6 +72,12 @@ export function useCustomers() {
 
   const handleCreateCustomer = async (customerData: Partial<Customer>) => {
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        navigate('/');
+        return;
+      }
+
       // Create address first
       const { data: addressData, error: addressError } = await supabase
         .from("address")
