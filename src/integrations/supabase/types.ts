@@ -42,27 +42,27 @@ export type Database = {
       address: {
         Row: {
           address_id: number
-          address_line: string
-          city: string
-          postal_code: string
-          region: string
-          state: string
+          address_line: string | null
+          city: string | null
+          postal_code: string | null
+          region: string | null
+          state: string | null
         }
         Insert: {
           address_id?: never
-          address_line: string
-          city: string
-          postal_code: string
-          region: string
-          state: string
+          address_line?: string | null
+          city?: string | null
+          postal_code?: string | null
+          region?: string | null
+          state?: string | null
         }
         Update: {
           address_id?: never
-          address_line?: string
-          city?: string
-          postal_code?: string
-          region?: string
-          state?: string
+          address_line?: string | null
+          city?: string | null
+          postal_code?: string | null
+          region?: string | null
+          state?: string | null
         }
         Relationships: []
       }

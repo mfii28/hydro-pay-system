@@ -78,16 +78,16 @@ export function useCustomers() {
         return;
       }
 
-      // Create address with null values instead of empty strings
+      // Create address with empty string values instead of null
       const { data: addressData, error: addressError } = await supabase
         .from("address")
         .insert([
           {
-            address_line: null,
-            city: null,
-            state: null,
-            postal_code: null,
-            region: null,
+            address_line: '',
+            city: '',
+            state: '',
+            postal_code: '',
+            region: '',
           },
         ])
         .select()
