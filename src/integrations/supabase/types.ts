@@ -66,20 +66,20 @@ export type Database = {
         }
         Relationships: []
       }
-      adminuser: {
+      admin_user: {
         Row: {
           email: string
           id: number
           password_hash: string
         }
         Insert: {
-          email?: string
-          id?: never
-          password_hash?: string
+          email: string
+          id?: number
+          password_hash: string
         }
         Update: {
           email?: string
-          id?: never
+          id?: number
           password_hash?: string
         }
         Relationships: []

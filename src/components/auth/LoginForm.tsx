@@ -19,8 +19,6 @@ export default function LoginForm() {
 
     try {
       const { token, user } = await authenticateUser({ email, password });
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(user));
       
       toast({
         title: "Login successful",
@@ -43,8 +41,8 @@ export default function LoginForm() {
     <div className="flex min-h-screen items-center justify-center bg-gray-50">
       <Card className="w-[400px]">
         <CardHeader>
-          <CardTitle className="text-2xl font-bold text-center text-water-600">
-            Water Bill Management
+          <CardTitle className="text-2xl font-bold text-center">
+            Admin Login
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -78,7 +76,7 @@ export default function LoginForm() {
             </div>
             <Button 
               type="submit" 
-              className="w-full bg-water-600 hover:bg-water-700"
+              className="w-full"
               disabled={isLoading}
             >
               {isLoading ? "Logging in..." : "Login"}
