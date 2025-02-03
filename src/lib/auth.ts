@@ -17,24 +17,7 @@ export const authenticateUser = async (credentials: LoginCredentials): Promise<A
   const { email, password } = credentials;
   
   try {
-    // Query the admin_user table to check credentials
-    const { data: adminUser, error: queryError } = await supabase
-      .from('admin_user')
-      .select('*')
-      .eq('email', email)
-      .eq('password_hash', password)
-      .maybeSingle();
-
-    if (queryError) {
-      console.error('Database query error:', queryError);
-      throw new Error('Authentication failed');
-    }
-
-    if (!adminUser) {
-      throw new Error('Invalid credentials');
-    }
-
-    // Create a session using Supabase auth
+    // First, sign in with Supabase auth
     const { data: authData, error: signInError } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -47,6 +30,22 @@ export const authenticateUser = async (credentials: LoginCredentials): Promise<A
 
     if (!authData.session) {
       throw new Error('Failed to create session');
+    }
+
+    // Then query the admin_user table to get additional user info
+    const { data: adminUser, error: queryError } = await supabase
+      .from('admin_user')
+      .select('*')
+      .eq('email', email)
+      .maybeSingle();
+
+    if (queryError) {
+      console.error('Database query error:', queryError);
+      throw new Error('Authentication failed');
+    }
+
+    if (!adminUser) {
+      throw new Error('Invalid credentials');
     }
 
     return {

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { authenticateUser } from "@/lib/auth";
 import { useNavigate } from "react-router-dom";
 
@@ -18,19 +18,22 @@ export default function LoginForm() {
     setIsLoading(true);
 
     try {
-      const { token, user } = await authenticateUser({ email, password });
+      await authenticateUser({ email, password });
       
       toast({
-        title: "Login successful",
-        description: "Welcome to the Water Bill Management System",
+        title: "Success!",
+        description: "You have successfully logged in.",
+        duration: 3000,
       });
       
+      // Redirect to dashboard after successful login
       navigate('/dashboard');
     } catch (error) {
       toast({
-        title: "Login failed",
-        description: "Invalid credentials",
+        title: "Error",
+        description: error instanceof Error ? error.message : "Login failed",
         variant: "destructive",
+        duration: 3000,
       });
     } finally {
       setIsLoading(false);
