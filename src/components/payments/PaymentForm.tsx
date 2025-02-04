@@ -21,6 +21,7 @@ interface PaymentFormProps {
   handlePaymentMethodChange: (value: string) => void;
   handlePaymentAmountChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
   handlePaymentDateChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  handleSubmit: (event: React.FormEvent) => void;
   isAddingPayment: boolean;
   setIsAddingPayment: (value: boolean) => void;
 }
@@ -39,6 +40,7 @@ export function PaymentForm({
   handlePaymentMethodChange,
   handlePaymentAmountChange,
   handlePaymentDateChange,
+  handleSubmit,
   isAddingPayment,
   setIsAddingPayment
 }: PaymentFormProps) {
@@ -49,7 +51,7 @@ export function PaymentForm({
           <DialogTitle>Record New Payment</DialogTitle>
           <DialogDescription>Enter the payment's details below.</DialogDescription>
         </DialogHeader>
-        <form className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div className='grid gap-4'>
             <div className='grid gap-2'>
               <Label htmlFor='customerId'>Customer</Label>

@@ -8,8 +8,10 @@ import { PaymentForm } from "@/components/payments/PaymentForm";
 import { RecentTransactions } from "@/components/payments/RecentTransactions";
 import { CustomerPaymentHistory } from "@/components/payments/CustomerPaymentHistory";
 import { supabase } from "@/lib/supabase";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Payments() {
+  const { toast } = useToast();
   const [customers, setCustomers] = useState<SelectOption[]>([]);
   const [bills, setBills] = useState<SelectOption[]>([]);
   const [paymentMethods, setPaymentMethods] = useState<SelectOption[]>([]);
@@ -23,37 +25,74 @@ export default function Payments() {
   const [pendingPayments, setPendingPayments] = useState<Payment[]>([]);
 
   const fetchCustomers = async () => {
-    const { data, error } = await supabase
-      .from('Customers')
-      .select('customer_id, name');
-    
-    if (error) {
+    try {
+      const { data, error } = await supabase
+        .from('customer')
+        .select('customer_id, name');
+      
+      if (error) throw error;
+      
+      const options = data.map((customer) => ({
+        value: customer.customer_id.toString(),
+        label: customer.name,
+      }));
+      setCustomers(options);
+    } catch (error) {
       console.error('Error fetching customers:', error);
-      return;
+      toast({
+        title: "Error",
+        description: "Failed to fetch customers",
+        variant: "destructive",
+      });
     }
-    
-    const options = data.map((customer) => ({
-      value: customer.customer_id.toString(),
-      label: customer.name,
-    }));
-    setCustomers(options);
   };
 
   const fetchPaymentMethods = async () => {
-    const { data, error } = await supabase
-      .from('payment_methods')
-      .select('payment_method_id, name');
-    
-    if (error) {
-      console.error('Error fetching payment methods:', error);
-      return;
-    }
+    try {
+      const { data, error } = await supabase
+        .from('paymentmethod')
+        .select('payment_method_id, name');
+      
+      if (error) throw error;
 
-    const options = data.map((method) => ({
-      value: method.payment_method_id.toString(),
-      label: method.name,
-    }));
-    setPaymentMethods(options);
+      const options = data.map((method) => ({
+        value: method.payment_method_id.toString(),
+        label: method.name,
+      }));
+      setPaymentMethods(options);
+    } catch (error) {
+      console.error('Error fetching payment methods:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch payment methods",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const fetchRecentTransactions = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('payment')
+        .select(`
+          *,
+          payment_method:paymentmethod(name),
+          payment_status_name:paymentstatus(name)
+        `)
+        .order('payment_date', { ascending: false })
+        .limit(10);
+
+      if (error) throw error;
+
+      setRecentTransactions(data);
+    } catch (error) {
+      console.error('Error fetching transactions:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch recent transactions",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleCustomerChange = (value: string) => {
@@ -80,27 +119,84 @@ export default function Payments() {
     setPaymentDate(new Date(event.target.value));
   };
 
-  const fetchBills = async (customerId: string) => {
-    const { data, error } = await supabase
-      .from('Bills')
-      .select('bill_id')
-      .eq('customer_id', parseInt(customerId));
-    
-    if (error) {
-      console.error('Error fetching bills:', error);
+  const handleSubmitPayment = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!selectedBill || !selectedPaymentMethod || !paymentAmount || !paymentDate) {
+      toast({
+        title: "Error",
+        description: "Please fill in all required fields",
+        variant: "destructive",
+      });
       return;
     }
 
-    const options = data.map((bill) => ({
-      value: bill.bill_id.toString(),
-      label: `Bill #${bill.bill_id}`,
-    }));
-    setBills(options);
+    try {
+      const { error } = await supabase
+        .from('payment')
+        .insert({
+          bill_id: parseInt(selectedBill.value),
+          payment_method_id: parseInt(selectedPaymentMethod.value),
+          payment_date: paymentDate.toISOString(),
+          amount: parseFloat(paymentAmount),
+          payment_status: 1 // Assuming 1 is for 'Completed' status
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Payment recorded successfully",
+      });
+      
+      setIsAddingPayment(false);
+      fetchRecentTransactions();
+      resetForm();
+    } catch (error) {
+      console.error('Error recording payment:', error);
+      toast({
+        title: "Error",
+        description: "Failed to record payment",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const resetForm = () => {
+    setSelectedCustomer(null);
+    setSelectedBill(null);
+    setSelectedPaymentMethod(null);
+    setPaymentAmount('');
+    setPaymentDate(null);
+  };
+
+  const fetchBills = async (customerId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('bill')
+        .select('bill_id, total_amount')
+        .eq('customer_id', parseInt(customerId));
+      
+      if (error) throw error;
+
+      const options = data.map((bill) => ({
+        value: bill.bill_id.toString(),
+        label: `Bill #${bill.bill_id} - GH₵${bill.total_amount}`,
+      }));
+      setBills(options);
+    } catch (error) {
+      console.error('Error fetching bills:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch bills",
+        variant: "destructive",
+      });
+    }
   };
 
   useEffect(() => {
     fetchCustomers();
     fetchPaymentMethods();
+    fetchRecentTransactions();
   }, []);
 
   const formatDate = (date: string | Date) => {
@@ -138,6 +234,7 @@ export default function Payments() {
               handlePaymentMethodChange={handlePaymentMethodChange}
               handlePaymentAmountChange={handlePaymentAmountChange}
               handlePaymentDateChange={handlePaymentDateChange}
+              handleSubmit={handleSubmitPayment}
               isAddingPayment={isAddingPayment}
               setIsAddingPayment={setIsAddingPayment}
             />
