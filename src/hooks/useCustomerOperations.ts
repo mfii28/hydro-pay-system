@@ -12,6 +12,22 @@ export function useCustomerOperations(refetchCustomers: () => Promise<void>) {
       const isAuthenticated = await checkSession();
       if (!isAuthenticated) return;
 
+      // Check if email already exists
+      const { data: existingCustomer } = await supabase
+        .from("customer")
+        .select("email")
+        .eq("email", customerData.email)
+        .single();
+
+      if (existingCustomer) {
+        toast({
+          title: "Error",
+          description: "A customer with this email already exists",
+          variant: "destructive",
+        });
+        return;
+      }
+
       // Create address with null values
       const { data: addressData, error: addressError } = await supabase
         .from("address")
@@ -65,11 +81,20 @@ export function useCustomerOperations(refetchCustomers: () => Promise<void>) {
 
       if (customerError) {
         console.error("Error creating customer:", customerError);
-        toast({
-          title: "Error",
-          description: "Failed to create customer",
-          variant: "destructive",
-        });
+        // Check specifically for duplicate email error
+        if (customerError.code === '23505' && customerError.message?.includes('customer_email_key')) {
+          toast({
+            title: "Error",
+            description: "A customer with this email already exists",
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Error",
+            description: "Failed to create customer",
+            variant: "destructive",
+          });
+        }
         return;
       }
 
