@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { SelectOption } from "@/lib/types";
+import { useToast } from "@/hooks/use-toast";
 
 interface PaymentFormProps {
   customers: SelectOption[];
@@ -44,18 +45,61 @@ export function PaymentForm({
   isAddingPayment,
   setIsAddingPayment
 }: PaymentFormProps) {
+  const { toast } = useToast();
+
+  const handleCustomerSelect = (value: string) => {
+    handleCustomerChange(value);
+    toast({
+      title: "Customer Selected",
+      description: "Customer information loaded successfully",
+      className: "animate-fade-in",
+    });
+  };
+
+  const handleBillSelect = (value: string) => {
+    handleBillChange(value);
+    toast({
+      title: "Bill Selected",
+      description: "Bill details loaded successfully",
+      className: "animate-scale-in",
+    });
+  };
+
+  const handlePaymentMethodSelect = (value: string) => {
+    handlePaymentMethodChange(value);
+    toast({
+      title: "Payment Method Selected",
+      description: "Payment method set successfully",
+      className: "animate-slide-in-right",
+    });
+  };
+
+  const handleFormSubmit = (event: React.FormEvent) => {
+    if (!selectedCustomer || !selectedBill || !selectedPaymentMethod || !paymentAmount || !paymentDate) {
+      toast({
+        title: "Validation Error",
+        description: "Please fill in all required fields",
+        variant: "destructive",
+        className: "animate-shake",
+      });
+      event.preventDefault();
+      return;
+    }
+    handleSubmit(event);
+  };
+
   return (
     <Dialog open={isAddingPayment} onOpenChange={setIsAddingPayment}>
-      <DialogContent>
+      <DialogContent className="animate-scale-in">
         <DialogHeader>
           <DialogTitle>Record New Payment</DialogTitle>
           <DialogDescription>Enter the payment's details below.</DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleFormSubmit} className="space-y-4">
           <div className='grid gap-4'>
             <div className='grid gap-2'>
               <Label htmlFor='customerId'>Customer</Label>
-              <Select onValueChange={handleCustomerChange}>
+              <Select onValueChange={handleCustomerSelect}>
                 <SelectTrigger className='w-full'>
                   <SelectValue placeholder='Select a customer' />
                 </SelectTrigger>
@@ -72,7 +116,7 @@ export function PaymentForm({
             </div>
             <div className='grid gap-2'>
               <Label htmlFor='billId'>Bill</Label>
-              <Select onValueChange={handleBillChange} disabled={!selectedCustomer}>
+              <Select onValueChange={handleBillSelect} disabled={!selectedCustomer}>
                 <SelectTrigger className='w-full'>
                   <SelectValue placeholder='Select a Bill' />
                 </SelectTrigger>
@@ -87,7 +131,7 @@ export function PaymentForm({
             </div>
             <div className='grid gap-2'>
               <Label htmlFor='paymentMethod'>Payment Method</Label>
-              <Select onValueChange={handlePaymentMethodChange}>
+              <Select onValueChange={handlePaymentMethodSelect}>
                 <SelectTrigger className='w-full'>
                   <SelectValue placeholder='Select a payment method' />
                 </SelectTrigger>
@@ -108,6 +152,7 @@ export function PaymentForm({
                 placeholder="100.00"
                 value={paymentAmount}
                 onChange={handlePaymentAmountChange}
+                className="transition-all duration-200 hover:border-primary focus:border-primary"
               />
             </div>
             <div className="grid gap-2">
@@ -116,11 +161,12 @@ export function PaymentForm({
                 id="date"
                 type="date"
                 onChange={handlePaymentDateChange}
+                className="transition-all duration-200 hover:border-primary focus:border-primary"
               />
             </div>
           </div>
           <DialogFooter>
-            <Button type="submit">Record Payment</Button>
+            <Button type="submit" className="animate-pulse hover:animate-none">Record Payment</Button>
           </DialogFooter>
         </form>
       </DialogContent>
