@@ -15,11 +15,11 @@ export type Database = {
           name: string
         }
         Insert: {
-          account_status_id?: never
+          account_status_id?: number
           name: string
         }
         Update: {
-          account_status_id?: never
+          account_status_id?: number
           name?: string
         }
         Relationships: []
@@ -30,11 +30,11 @@ export type Database = {
           name: string
         }
         Insert: {
-          account_type_id?: never
+          account_type_id?: number
           name: string
         }
         Update: {
-          account_type_id?: never
+          account_type_id?: number
           name?: string
         }
         Relationships: []
@@ -49,7 +49,7 @@ export type Database = {
           state: string | null
         }
         Insert: {
-          address_id?: never
+          address_id?: number
           address_line?: string | null
           city?: string | null
           postal_code?: string | null
@@ -57,7 +57,7 @@ export type Database = {
           state?: string | null
         }
         Update: {
-          address_id?: never
+          address_id?: number
           address_line?: string | null
           city?: string | null
           postal_code?: string | null
@@ -94,8 +94,8 @@ export type Database = {
           total_amount: number
         }
         Insert: {
-          bill_date: string
-          bill_id?: never
+          bill_date?: string
+          bill_id?: number
           bill_status: number
           customer_id: number
           due_date: string
@@ -103,7 +103,7 @@ export type Database = {
         }
         Update: {
           bill_date?: string
-          bill_id?: never
+          bill_id?: number
           bill_status?: number
           customer_id?: number
           due_date?: string
@@ -138,7 +138,7 @@ export type Database = {
         Insert: {
           amount: number
           bill_id: number
-          bill_item_id?: never
+          bill_item_id?: number
           description: string
           quantity: number
           unit_price: number
@@ -146,7 +146,7 @@ export type Database = {
         Update: {
           amount?: number
           bill_id?: number
-          bill_item_id?: never
+          bill_item_id?: number
           description?: string
           quantity?: number
           unit_price?: number
@@ -167,11 +167,11 @@ export type Database = {
           name: string
         }
         Insert: {
-          bill_status_id?: never
+          bill_status_id?: number
           name: string
         }
         Update: {
-          bill_status_id?: never
+          bill_status_id?: number
           name?: string
         }
         Relationships: []
@@ -192,7 +192,7 @@ export type Database = {
           account_type?: number | null
           billing_address_id?: number | null
           billing_cycle?: string | null
-          customer_id?: never
+          customer_id?: number
           email: string
           name: string
           phone: string
@@ -202,7 +202,7 @@ export type Database = {
           account_type?: number | null
           billing_address_id?: number | null
           billing_cycle?: string | null
-          customer_id?: never
+          customer_id?: number
           email?: string
           name?: string
           phone?: string
@@ -240,14 +240,14 @@ export type Database = {
         }
         Insert: {
           customer_id: number
-          installation_date: string
-          meter_id?: never
+          installation_date?: string
+          meter_id?: number
           meter_number: string
         }
         Update: {
           customer_id?: number
           installation_date?: string
-          meter_id?: never
+          meter_id?: number
           meter_number?: string
         }
         Relationships: [
@@ -272,8 +272,8 @@ export type Database = {
         Insert: {
           amount: number
           bill_id: number
-          payment_date: string
-          payment_id?: never
+          payment_date?: string
+          payment_id?: number
           payment_method_id: number
           payment_status: number
         }
@@ -281,7 +281,7 @@ export type Database = {
           amount?: number
           bill_id?: number
           payment_date?: string
-          payment_id?: never
+          payment_id?: number
           payment_method_id?: number
           payment_status?: number
         }
@@ -316,11 +316,11 @@ export type Database = {
         }
         Insert: {
           name: string
-          payment_method_id?: never
+          payment_method_id?: number
         }
         Update: {
           name?: string
-          payment_method_id?: never
+          payment_method_id?: number
         }
         Relationships: []
       }
@@ -331,11 +331,11 @@ export type Database = {
         }
         Insert: {
           name: string
-          payment_status_id?: never
+          payment_status_id?: number
         }
         Update: {
           name?: string
-          payment_status_id?: never
+          payment_status_id?: number
         }
         Relationships: []
       }
@@ -353,7 +353,7 @@ export type Database = {
         Insert: {
           customer_type: number
           price_per_m3: number
-          rate_id?: never
+          rate_id?: number
           region?: string | null
           service_fee: number
           tax: number
@@ -363,7 +363,7 @@ export type Database = {
         Update: {
           customer_type?: number
           price_per_m3?: number
-          rate_id?: never
+          rate_id?: number
           region?: string | null
           service_fee?: number
           tax?: number
@@ -389,14 +389,14 @@ export type Database = {
         }
         Insert: {
           meter_id: number
-          reading_date: string
-          usage_id?: never
+          reading_date?: string
+          usage_id?: number
           water_usage: number
         }
         Update: {
           meter_id?: number
           reading_date?: string
-          usage_id?: never
+          usage_id?: number
           water_usage?: number
         }
         Relationships: [

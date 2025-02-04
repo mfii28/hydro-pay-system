@@ -9,7 +9,7 @@ import { Customer } from "@/lib/types";
 interface CustomerFormProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (customer: Partial<Customer>) => void;
+  onSubmit: (customer: Partial<Customer> & { meter_number?: string }) => void;
   customer?: Customer;
   title: string;
   description: string;
@@ -27,13 +27,14 @@ export function CustomerForm({
   accountTypes,
   accountStatuses,
 }: CustomerFormProps) {
-  const [formData, setFormData] = React.useState<Partial<Customer>>({
+  const [formData, setFormData] = React.useState<Partial<Customer> & { meter_number?: string }>({
     name: customer?.name || '',
     email: customer?.email || '',
     phone: customer?.phone || '',
     billing_cycle: customer?.billing_cycle || '',
     account_type: customer?.account_type || null,
     account_status: customer?.account_status || null,
+    meter_number: '',
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -41,7 +42,7 @@ export function CustomerForm({
     onSubmit(formData);
   };
 
-  const handleInputChange = (field: keyof Customer, value: string | number | null) => {
+  const handleInputChange = (field: keyof (Customer & { meter_number: string }), value: string | number | null) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
@@ -80,6 +81,15 @@ export function CustomerForm({
                 value={formData.phone || ''}
                 onChange={(e) => handleInputChange('phone', e.target.value)}
                 placeholder="(555) 123-4567"
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="meter_number">Meter Number</Label>
+              <Input
+                id="meter_number"
+                value={formData.meter_number || ''}
+                onChange={(e) => handleInputChange('meter_number', e.target.value)}
+                placeholder="Enter meter number (optional)"
               />
             </div>
             <div className="grid gap-2">

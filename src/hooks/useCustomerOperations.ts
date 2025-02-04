@@ -7,7 +7,7 @@ export function useCustomerOperations(refetchCustomers: () => Promise<void>) {
   const { toast } = useToast();
   const { checkSession } = useCustomerAuth();
 
-  const createCustomer = async (customerData: Partial<Customer>) => {
+  const createCustomer = async (customerData: Partial<Customer> & { meter_number?: string }) => {
     try {
       const isAuthenticated = await checkSession();
       if (!isAuthenticated) return;
@@ -88,7 +88,7 @@ export function useCustomerOperations(refetchCustomers: () => Promise<void>) {
         .insert([
           {
             customer_id: customerResult.customer_id,
-            meter_number: `M${customerResult.customer_id}`,
+            meter_number: customerData.meter_number || `M${customerResult.customer_id}`,
             installation_date: new Date().toISOString(),
           },
         ]);
