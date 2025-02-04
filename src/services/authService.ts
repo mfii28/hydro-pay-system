@@ -11,17 +11,7 @@ export const useAuthService = () => {
 
   const signIn = async (credentials: LoginCredentials) => {
     try {
-      const { data: authData, error: signInError } = await supabase.auth.signInWithPassword({
-        email: credentials.email,
-        password: credentials.password,
-      });
-
-      if (signInError) throw signInError;
-
-      if (!authData.session) {
-        throw new Error('Failed to create session');
-      }
-
+      // First check if the admin user exists in our database
       const { data: adminUser, error: queryError } = await supabase
         .from('admin_user')
         .select('*')
@@ -30,6 +20,45 @@ export const useAuthService = () => {
 
       if (queryError) throw queryError;
       if (!adminUser) throw new Error('Invalid credentials');
+
+      // Then attempt to sign in with Supabase Auth
+      const { data: authData, error: signInError } = await supabase.auth.signInWithPassword({
+        email: credentials.email,
+        password: credentials.password,
+      });
+
+      if (signInError) {
+        // If sign in fails, try to create the user in Supabase Auth
+        const { error: signUpError } = await supabase.auth.signUp({
+          email: credentials.email,
+          password: credentials.password,
+        });
+
+        if (signUpError) {
+          throw new Error('Authentication failed. Please try again.');
+        }
+
+        // Try signing in again after creating the user
+        const { data: newAuthData, error: newSignInError } = await supabase.auth.signInWithPassword({
+          email: credentials.email,
+          password: credentials.password,
+        });
+
+        if (newSignInError) throw newSignInError;
+        if (!newAuthData.session) throw new Error('Failed to create session');
+
+        return {
+          token: newAuthData.session.access_token,
+          user: {
+            id: adminUser.id,
+            email: adminUser.email
+          }
+        };
+      }
+
+      if (!authData.session) {
+        throw new Error('Failed to create session');
+      }
 
       return {
         token: authData.session.access_token,
