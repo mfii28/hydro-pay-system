@@ -81,7 +81,6 @@ export function useCustomerOperations(refetchCustomers: () => Promise<void>) {
 
       if (customerError) {
         console.error("Error creating customer:", customerError);
-        // Check specifically for duplicate email error
         if (customerError.code === '23505' && customerError.message?.includes('customer_email_key')) {
           toast({
             title: "Error",
@@ -178,27 +177,39 @@ export function useCustomerOperations(refetchCustomers: () => Promise<void>) {
 
   const deleteCustomer = async (customer: Customer) => {
     try {
+      // First, delete all meters associated with the customer
       const { error: meterError } = await supabase
         .from("meter")
         .delete()
         .eq("customer_id", customer.customer_id);
 
-      if (meterError) throw meterError;
+      if (meterError) {
+        console.error("Error deleting meters:", meterError);
+        throw meterError;
+      }
 
+      // Then delete the customer
       const { error: customerError } = await supabase
         .from("customer")
         .delete()
         .eq("customer_id", customer.customer_id);
 
-      if (customerError) throw customerError;
+      if (customerError) {
+        console.error("Error deleting customer:", customerError);
+        throw customerError;
+      }
 
+      // Finally, delete the address if it exists
       if (customer.billing_address_id) {
         const { error: addressError } = await supabase
           .from("address")
           .delete()
           .eq("address_id", customer.billing_address_id);
 
-        if (addressError) throw addressError;
+        if (addressError) {
+          console.error("Error deleting address:", addressError);
+          throw addressError;
+        }
       }
 
       toast({
@@ -211,7 +222,7 @@ export function useCustomerOperations(refetchCustomers: () => Promise<void>) {
       console.error("Error deleting customer:", error);
       toast({
         title: "Error",
-        description: "Failed to delete customer",
+        description: "Failed to delete customer and related records",
         variant: "destructive",
       });
     }
