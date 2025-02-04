@@ -17,7 +17,7 @@ export function useCustomerOperations(refetchCustomers: () => Promise<void>) {
         .from("customer")
         .select("email")
         .eq("email", customerData.email)
-        .single();
+        .maybeSingle();
 
       if (existingCustomer) {
         toast({
