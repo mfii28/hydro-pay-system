@@ -1,44 +1,17 @@
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useToast } from "@/hooks/use-toast";
-import { authenticateUser } from "@/lib/auth";
-import { useNavigate } from "react-router-dom";
+import { useLoginForm } from "@/hooks/useLoginForm";
 
 export default function LoginForm() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
-  const navigate = useNavigate();
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-
-    try {
-      await authenticateUser({ email, password });
-      
-      toast({
-        title: "Success!",
-        description: "You have successfully logged in.",
-        duration: 3000,
-      });
-      
-      // Redirect to dashboard after successful login
-      navigate('/dashboard');
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: error instanceof Error ? error.message : "Login failed",
-        variant: "destructive",
-        duration: 3000,
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const {
+    email,
+    setEmail,
+    password,
+    setPassword,
+    isLoading,
+    handleSubmit,
+  } = useLoginForm();
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50">
