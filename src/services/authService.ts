@@ -16,39 +16,65 @@ export const useAuthService = () => {
         .from('admin_user')
         .select('*')
         .eq('email', credentials.email)
-        .maybeSingle();
+        .single();
 
-      if (queryError) throw queryError;
-      if (!adminUser) throw new Error('Invalid credentials');
+      if (queryError) {
+        toast({
+          title: "Error",
+          description: "Failed to verify admin user",
+          variant: "destructive",
+        });
+        throw queryError;
+      }
 
-      // Then attempt to sign in with Supabase Auth
-      const { data: authData, error: signInError } = await supabase.auth.signInWithPassword({
+      if (!adminUser) {
+        toast({
+          title: "Error",
+          description: "Invalid credentials",
+          variant: "destructive",
+        });
+        throw new Error('Invalid credentials');
+      }
+
+      // Try to sign in first
+      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
         email: credentials.email,
         password: credentials.password,
       });
 
       if (signInError) {
         // If sign in fails, try to create the user in Supabase Auth
-        const { error: signUpError } = await supabase.auth.signUp({
+        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
           email: credentials.email,
           password: credentials.password,
         });
 
         if (signUpError) {
-          throw new Error('Authentication failed. Please try again.');
+          toast({
+            title: "Error",
+            description: "Authentication failed",
+            variant: "destructive",
+          });
+          throw signUpError;
         }
 
         // Try signing in again after creating the user
-        const { data: newAuthData, error: newSignInError } = await supabase.auth.signInWithPassword({
+        const { data: newSignInData, error: newSignInError } = await supabase.auth.signInWithPassword({
           email: credentials.email,
           password: credentials.password,
         });
 
-        if (newSignInError) throw newSignInError;
-        if (!newAuthData.session) throw new Error('Failed to create session');
+        if (newSignInError) {
+          toast({
+            title: "Error",
+            description: "Failed to sign in after account creation",
+            variant: "destructive",
+          });
+          throw newSignInError;
+        }
 
         return {
-          token: newAuthData.session.access_token,
+          token: newSignInData.session?.access_token,
           user: {
             id: adminUser.id,
             email: adminUser.email
@@ -56,18 +82,15 @@ export const useAuthService = () => {
         };
       }
 
-      if (!authData.session) {
-        throw new Error('Failed to create session');
-      }
-
       return {
-        token: authData.session.access_token,
+        token: signInData.session?.access_token,
         user: {
           id: adminUser.id,
           email: adminUser.email
         }
       };
     } catch (error) {
+      console.error('Auth error:', error);
       const message = error instanceof Error ? error.message : 'Authentication failed';
       toast({
         title: "Error",
@@ -79,13 +102,22 @@ export const useAuthService = () => {
   };
 
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        toast({
+          title: "Error",
+          description: "Failed to sign out",
+          variant: "destructive",
+        });
+        throw error;
+      }
       toast({
-        title: "Error",
-        description: "Failed to sign out",
-        variant: "destructive",
+        title: "Success",
+        description: "Successfully signed out",
       });
+    } catch (error) {
+      console.error('Sign out error:', error);
       throw error;
     }
   };
